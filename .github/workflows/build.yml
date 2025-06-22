@@ -1,0 +1,76 @@
+name: Build Wwise SoundBanks (Android + Windows + JSON)
+
+on:
+  workflow_dispatch:
+    inputs:
+      external_repo:
+        description: "GitHub repo to build (format: user/repo)"
+        required: true
+        default: "DumpOrangeCat/wotb-mod-project"
+
+      branch:
+        description: "Branch to build from"
+        required: false
+        default: "main"
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: 📁 Checkout current repo (WwiseConsole & workflow)
+        uses: actions/checkout@v3
+
+      - name: 🧬 Clone Wwise Project from external repo + branch
+        run: |
+          git clone --branch ${{ github.event.inputs.branch }} https://github.com/${{ github.event.inputs.external_repo }} wwise_project
+
+      - name: 🧩 Unzip Wwise Console
+        run: |
+          Expand-Archive -Path "tools/Wwise2019.2.15.7667.zip" -DestinationPath "tools"
+
+      - name: 🔨 Build SoundBank - Windows
+        run: |
+          tools/Wwise2019.2.15.7667/Authoring/x64/Release/bin/WwiseConsole.exe `
+            generate-soundbank `
+            --project "wwise_project/MyProject.wproj" `
+            --platform Windows `
+            --language SFX `
+            --soundbank Default_Work_Unit `
+            --useSoundBankJSON true
+
+      - name: 🔨 Build SoundBank - Android
+        run: |
+          tools/Wwise2019.2.15.7667/Authoring/x64/Release/bin/WwiseConsole.exe `
+            generate-soundbank `
+            --project "wwise_project/MyProject.wproj" `
+            --platform Android `
+            --language SFX `
+            --soundbank Default_Work_Unit `
+            --useSoundBankJSON true
+
+      - name: 📤 Upload .bnk - Windows
+        uses: actions/upload-artifact@v4
+        with:
+          name: bnk-windows
+          path: |
+            wwise_project/GeneratedSoundBanks/Windows/*.bnk
+
+      - name: 📤 Upload .bnk - Android
+        uses: actions/upload-artifact@v4
+        with:
+          name: bnk-android
+          path: |
+            wwise_project/GeneratedSoundBanks/Android/*.bnk
+
+      - name: 📤 Upload SoundBankInfo - Windows
+        uses: actions/upload-artifact@v4
+        with:
+          name: soundbankinfo-windows
+          path: wwise_project/GeneratedSoundBanks/Windows/SoundBankInfo.json
+
+      - name: 📤 Upload SoundBankInfo - Android
+        uses: actions/upload-artifact@v4
+        with:
+          name: soundbankinfo-android
+          path: wwise_project/GeneratedSoundBanks/Android/SoundBankInfo.json
