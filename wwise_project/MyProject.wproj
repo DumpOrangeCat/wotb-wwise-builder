@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<WwiseDocument>
-  <Project>
-    <WorkUnits>
-      <WorkUnit Name="Default Work Unit" ID="0" Type="Event" FilePath="Events/Default Work Unit.wwu" />
-      <WorkUnit Name="Default Work Unit" ID="1" Type="Actor-Mixer Hierarchy" FilePath="Actor-Mixer Hierarchy/Default Work Unit.wwu" />
-    </WorkUnits>
-  </Project>
-</WwiseDocument>
